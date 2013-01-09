@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project supports-build-configs="true" version="1.5">
+<build.cfg id="Debug" types="Debug"/>
+<build.cfg id="Release" types="Release"/>
+<criteria>
+<filter mgr="0" profiles="" require="0" type="com.mobilesorcery.mosync.filters.profile" vendors="Android,BlackBerry,JavaME,Moblin,Symbian,Windows Mobile,Windows Phone,iOS"/>
+<filter type="com.mobilesorcery.sdk.capabilities.devices.elementfactory">
+<capabilities optional="" required="File\ Storage"/>
+</filter>
+<filter type="com.mobilesorcery.sdk.capabilities.devices.elementfactory">
+<capabilities optional="" required=""/>
+</filter>
+<filter type="com.mobilesorcery.sdk.capabilities.devices.elementfactory">
+<capabilities optional="" required=""/>
+</filter>
+</criteria>
+<properties>
+<property key="build.prefs:additional.include.paths/Debug" value="%project:CBHelper%"/>
+<property key="build.prefs:additional.include.paths/Release" value=""/>
+<property key="build.prefs:additional.libraries" value="MAUtil.lib"/>
+<property key="build.prefs:additional.libraries/Debug" value="NativeUI.lib, Notification.lib, CBHelper.lib"/>
+<property key="build.prefs:additional.libraries/Release" value="MAUtil.lib, yajl.lib"/>
+<property key="build.prefs:additional.library.paths/Debug" value="%project:CBHelper%/Output/Release/"/>
+<property key="build.prefs:additional.library.paths/Release" value=""/>
+<property key="build.prefs:app.permissions" value="Compass File\ Storage File\ Storage/Read File\ Storage/Write Internet\ Access Location Location/Coarse Location/Fine Push\ Notifications Vibration"/>
+<property key="build.prefs:dead.code.elim/Debug" value="true"/>
+<property key="build.prefs:extra.link.sw/Debug" value=""/>
+<property key="build.prefs:extra.link.sw/Release" value=""/>
+<property key="build.prefs:extra.res.sw/Debug" value=""/>
+<property key="build.prefs:extra.res.sw/Release" value=""/>
+<property key="build.prefs:gcc.warnings/Debug" value="0"/>
+<property key="build.prefs:gcc.warnings/Release" value="0"/>
+<property key="build.prefs:ignore.default.include.paths/Debug" value="false"/>
+<property key="build.prefs:ignore.default.libraries/Debug" value="true"/>
+<property key="build.prefs:ignore.default.library.paths/Debug" value="false"/>
+<property key="build.prefs:project.type" value=""/>
+<property key="dependency.strategy" value="0"/>
+<property key="excludes/Debug" value=""/>
+<property key="excludes/Release" value=""/>
+<property key="iphone:certproj.spec" value="true"/>
+<property key="profile.mgr.type" value="0"/>
+<property key="symbian.uids:uid.s60v2uid" value="0x02028027"/>
+<property key="symbian.uids:uid.s60v3uid" value="0xe94cc302"/>
+<property key="template.id" value="project.moblet"/>
+<property key="winmobilecs:guid" value="2fd9d9a0-1a07-1030-80d8-db212705dbbc"/>
+</properties>
+</project>

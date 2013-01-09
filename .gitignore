@@ -11,3 +11,10 @@
 *.lai
 *.la
 *.a
+
+# Skip mac files
+.DS_Store
+
+# project files
+.metadata
+

@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>CBHelper.js</title>
+    <link rel="stylesheet" href="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;3.7.0&#x2F;build&#x2F;cssgrids&#x2F;cssgrids-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="..&#x2F;assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="..&#x2F;assets/favicon.png">
+    <script src="http:&#x2F;&#x2F;yui.yahooapis.com&#x2F;combo?3.7.0&#x2F;build&#x2F;yui&#x2F;yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="..&#x2F;assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="..&#x2F;classes/CBHelper.html">CBHelper</a></li>
+            
+                <li><a href="..&#x2F;classes/CBHelperCurrentLocation.html">CBHelperCurrentLocation</a></li>
+            
+                <li><a href="..&#x2F;classes/CBHelperResponseInfo.html">CBHelperResponseInfo</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: CBHelper.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+&#x2F;&#x2F; =============================================================
+&#x2F;&#x2F;
+&#x2F;&#x2F; File: CBHelper.js
+
+&#x2F;*
+Copyright (C) 2012 Cloudbase.io
+
+This program is free software; you can redistribute it and&#x2F;or
+modify it under the terms of the GNU General Public License,
+version 2, as published by the Free Software Foundation.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
+MA 02110-1301, USA.
+*&#x2F;
+
+&#x2F;**
+* The CBHelperResponseInfo object contains all of the data and information returned 
+* by cloudbase.io once a request is made. Other than the file download API calls all
+* other calls will send to the responder function an object of this type
+*
+* @class CBHelperResponseInfo
+* @constructor
+*&#x2F;
+function CBHelperResponseInfo() {
+	&#x2F;**
+	* The status code returned by the cloudbase.io APIs. The most common values are
+	* 200 for OK or 401 for unauthorized request. 
+	* 
+	* @property httpStatus
+	* @type int
+	* @default 0
+	*&#x2F;
+	this.httpStatus 		= 0,
+	&#x2F;**
+	* The function type for the current API call. log&#x2F;data&#x2F;notifications&#x2F;cloudfunction&#x2F;email and so on.
+	* This is irrelevant unless you need to parse again the output returned by the APIs using the 
+	* outputString property.
+	* 
+	* @property cloudbaseFunction
+	* @type string
+	* @default &quot;&quot;
+	*&#x2F;
+	this.cloudbaseFunction	= &quot;&quot;,
+	&#x2F;**
+	* The error message (if any) returned by the cloudbase APIs
+	* 
+	* @property errorMessage
+	* @type string
+	* @default &quot;&quot;
+	*&#x2F;
+	this.errorMessage		= &quot;&quot;,
+	&#x2F;**
+	* Whether the API call was succesfull - the httpStatus may be 200 but the parameters were badly formatted
+	* so the value of this property is &lt;strong&gt;false&lt;&#x2F;strong&gt;.
+	* 
+	* @property callStatus
+	* @type bool
+	* @default false
+	*&#x2F;
+	this.callStatus			= false,
+	&#x2F;**
+	* The parsed JSON output of the API call. 
+	* 
+	* @property outputData
+	* @type object&#x2F;array
+	* @default object {}
+	*&#x2F;
+	this.outputData			= {},
+	&#x2F;**
+	* The full JSON response returned by the cloudbase.io servers. 
+	* 
+	* @property outputString
+	* @type string
+	* @default &quot;&quot;
+	*&#x2F;
+	this.outputString		= &quot;&quot;
+}
+
+&#x2F;**
+* This object is used to store and send to the cloudbase.io servers the location information - 
+* it should be set in the &lt;strong&gt;currentLocation&lt;&#x2F;strong&gt; property of the CBHelper object.
+*
+* @class CBHelperCurrentLocation
+* @constructor
+*&#x2F;
+function CBHelperCurrentLocation(latitude, longitude, altitude) {
+	this.lat = latitude;
+	this.lng = longitude;
+	this.alt = altitude;
+}
+
+&#x2F;**
+* This is the main cloudbase.io helper class. all of the API calls can be made through this object
+* once it&#x27;s been instanced using the application code, unique identifier and password.
+* The CBHelper class depends on the XMLHttpRequest and JSON objects being loaded.
+*
+* @class CBHelper
+* @constructor
+*&#x2F;
+function CBHelper (appCode, appUniq) {
+	&#x2F;**
+	* The application code assigned to the cloudbase.io application 
+	* 
+	* @property appCode
+	* @type string
+	* @default &quot;&quot;
+	*&#x2F;
+	this.appCode 				= appCode;
+	&#x2F;**
+	* The application unique identifier assigned to the cloudbase.io application 
+	* 
+	* @property appUniq
+	* @type string
+	* @default &quot;&quot;
+	*&#x2F;
+    this.appUniq 				= appUniq;
+    &#x2F;**
+	* The md5 hash of the application password on cloudbase.io. 
+	* 
+	* @property password
+	* @type string
+	* @default &quot;&quot;
+	*&#x2F;
+    this.password 				= &quot;&quot;;
+    &#x2F;**
+	* The unique identifier for the device - this will depend on which platform the 
+	* application is running and may be null. It should always be set to something as 
+	* this value is used to generate analytics about the number of visitors 
+	* 
+	* @property deviceUniqueIdentifier
+	* @type string
+	* @default window.device.uuid
+	*&#x2F;
+    this.deviceUniqueIdentifier = window.device.uuid;
+    &#x2F;**
+	* The current language of the device&#x27;s UI. This is used to generate analytics. 
+	* 
+	* @property language
+	* @type string
+	* @default &quot;&quot;
+	*&#x2F;
+    this.language				= &quot;&quot;; &#x2F;&#x2F; TODO: get this data from the device info
+    &#x2F;**
+	* The country taken from the device locale settings 
+	* 
+	* @property country
+	* @type string
+	* @default &quot;&quot;
+	*&#x2F;
+    this.country				= &quot;&quot;; &#x2F;&#x2F; TODO: get this data from the device info
+    &#x2F;**
+	* The sessionId is a unique identifier generated by the cloudbase.io servers once a
+	* device is registered - See registerDevice API call. 
+	* 
+	* @property sessionId
+	* @type string
+	* @default &quot;&quot;
+	*&#x2F;
+    this.sessionId				= &quot;&quot;;
+    this.deviceRegistered		= false;
+    &#x2F;**
+	* This variable should contain a CBHelperCurrentLocation object. if this property is set
+	* then the location information will be sent with each API call.
+	* 
+	* @property currentLocation
+	* @type CBHelperCurrentLocation
+	* @default {}
+	*&#x2F;
+    this.currentLocation		= {};
+    this.attachmentData			= null;
+    this.filesLoaded			= true;
+    
+    this.isHttps				= true;
+    this.domain					= &quot;api.cloudbase.io&quot;;
+}
+
+CBHelper.prototype.defaultLogCategory = &quot;DEFAULT&quot;;
+CBHelper.prototype.CBLogLevel = {
+    DEBUG : &quot;DEBUG&quot;,
+    INFO : &quot;INFO&quot;,
+    WARNING : &quot;WARNING&quot;,
+    ERROR : &quot;ERROR&quot;,
+    FATAL : &quot;FATAL&quot;,
+    EVENT : &quot;EVENT&quot;
+};
+
+&#x2F;**
+* Sets the password for the application on cloudbase.io. This method expects the md5 hash
+* of the application password. Once the password is set the CBHelper class will automatically
+* try to register the device with the cloudbase.io servers thus starting a new session and 
+* receiving the sessionId
+*
+* @method setPassword
+* @param {String} pwd The md5 hash of the application password on cloudbase.io
+*&#x2F;
+CBHelper.prototype.setPassword = function(pwd) {
+    this.password = pwd;
+    if (!this.deviceRegistered) {
+    	this.registerDevice();
+    	this.deviceRegistered = true;
+    }
+};
+
+&#x2F;&#x2F; Register device
+&#x2F;**
+* Registers a device with the cloudbase.io server and receives the sessionId.
+*
+* @method registerDevice
+*&#x2F;
+CBHelper.prototype.registerDevice = function() {
+	params = {
+		&quot;device_type&quot; : &quot;MoSync-Reload&quot;,
+		&quot;device_name&quot; : window.device.name,
+		&quot;device_model&quot; : window.device.platform + &#x27; &#x27; + window.device.version,
+		&quot;language&quot; : this.language,
+		&quot;country&quot; : this.country
+	};
+	
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;register&quot;;
+	this.sendHttpRequest(&quot;register-device&quot;, url, params, function(parsedData) {
+		this.sessionId = parsedData.outputData.sessionid;
+	});
+};
+&#x2F;&#x2F; &#x2F;Register device
+
+&#x2F;&#x2F; Logging functions
+CBHelper.prototype.logDebug = function(line, category) {
+	this.writeLog(line, category, this.CBLogLevel.DEBUG);
+};
+CBHelper.prototype.logInfo = function(line, category) {
+	this.writeLog(line, category, this.CBLogLevel.INFO);
+};
+CBHelper.prototype.logWarn = function(line, category) {
+	this.writeLog(line, category, this.CBLogLevel.WARNING);
+};
+CBHelper.prototype.logError = function(line, category) {
+	this.writeLog(line, category, this.CBLogLevel.ERROR);
+};
+CBHelper.prototype.logFatal = function(line, category) {
+	this.writeLog(line, category, this.CBLogLevel.FATAL);
+};
+CBHelper.prototype.logEvent = function(line, category) {
+	this.writeLog(line, category, this.CBLogLevel.EVENT);
+};
+&#x2F;**
+* Logs something to the cloudbase.io servers. This log is accessible through the application
+* control panel on the cloudbase.io account pages and allows to keep track of potential issues
+* and errors encountered by the application&#x27;s users.
+* Additionally it is possible to send special &quot;EVENT&quot; messages by using the EVENT severity type.
+* These events will be collected and used to generate analytics for custom events.
+* 
+* Shortcuts for each severity types are also available:
+* logDebug(line, category);
+* logInfo(line, category);
+* logWarn(line, category);
+* logError(line, category);
+* logFatal(line, category);
+* logEvent(line, category);
+*
+* @method writeLog
+* @param {String} line The text to log
+* @param {String} category The category to log to. If this parameter is null then &quot;DEFAULT&quot; is used
+* @param {CBHelper.CBLogLevel} severity The severity of the logged information - DEBUG&#x2F;INFO&#x2F;WARNING&#x2F;ERROR&#x2F;FATAL&#x2F;EVENT
+*&#x2F;
+CBHelper.prototype.writeLog = function(line, category, severity) {
+	params = {
+		&quot;category&quot; : (category = typeof category !== &#x27;undefined&#x27;?category:this.defaultLogCategory),
+		&quot;level&quot; : severity,
+		&quot;log_line&quot; : line,
+		&quot;device_name&quot; : window.device.name,
+		&quot;device_model&quot; : window.device.platform + &#x27; &#x27; + window.device.version
+	};
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;log&quot;;
+	this.sendHttpRequest(&quot;log&quot;, url, params, null);
+};
+&#x2F;**
+* Sends navigation information to the cloudbase.io servers using the sessionId. This data
+* is used to generate the usage flow analytics to help you understand how your users interact
+* with your application.
+* This method should be called every time a new screen is displayed with the new screen name.
+*
+* @method logNavigation
+* @param {String} viewName The unique identifier of the newly loaded screen
+*&#x2F;
+CBHelper.prototype.logNavigation = function(viewName) {
+	if (this.sessionId = typeof this.sessionId !== &#x27;undefined&#x27; &amp;&amp; this.sessionId != &quot;&quot;) {
+		params = {
+			&quot;session_id&quot; : this.sessionId,
+			&quot;screen_name&quot; : viewName
+		};
+		
+		url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;lognavigation&quot;;
+		this.sendHttpRequest(&quot;log-navigation&quot;, url, params, null);
+	}
+};
+&#x2F;&#x2F; &#x2F;Logging functions
+
+&#x2F;&#x2F; CloudBase functions
+CBHelper.prototype.sendInsert = function(url, finalData, responder, waitForFiles) {
+	mosync.rlog(&quot;SendInsert&quot;);
+	if (waitForFiles) {
+		mosync.rlog(&quot;WaitForFiles&quot;);
+		if (!this.filesLoaded) {
+			&#x2F;&#x2F;setTimeout(this.sendInsert(url, finalData, responder, waitForFiles), 3000);
+		} else {
+			this.sendHttpRequest(&quot;data&quot;, url, finalData, responder);
+		}
+	} else {
+		this.sendHttpRequest(&quot;data&quot;, url, finalData, responder);
+	}
+};
+&#x2F;**
+* Inserts a document in a collection in your cloudbase. The document could be any object.
+* The cloudbase.io helper class will automatically try to serialise it to JSON.
+* It is also possible to attach files to a document through this method. File attachments 
+* will appear as a special new field in your document called cb_files which will contain
+* a list of the files attached to the document and their unique identifier on the cloudbase.io
+* servers. The files can then be downloaded using this unique identifier
+*
+* @method insertDocument
+* @param {String} collection The name of the collection (table) to save the new document to
+* @param {Object} data The object to be saved - this will automatically be serialised to JSON
+* @param {Array} files The list of files to be attached to the document - this should be an array of full paths
+* 	Array(&#x27;&#x2F;tmp&#x2F;test.csv&#x27;, &#x27;&#x2F;sd&#x2F;media&#x2F;image01.jpg&#x27;);
+* @param {function(CBHelperResponseInfo)} responder A function to handle the reponse returned by cloudbase.io
+* 	in the form of a CBHelperResponseInfo object
+*&#x2F;
+CBHelper.prototype.insertDocument = function(collection, data, files, responder) {
+	var finalData;
+	var waitForFiles = false;
+	var dataType = typeof data;
+	if (dataType !== &#x27;array&#x27;) {
+		finalData = new Array(data);
+	} else {
+		finalData = data;
+	}
+	
+	if (files != null &amp;&amp; files.length &gt; 0) {
+		this.filesLoaded = false;
+		this.attachmentData = null;
+		&#x2F;&#x2F;for (var file in files) {
+		for (var i = 0; i &lt; files.length; i++) {
+			mosync.rlog(&quot;cur file &quot; + i + &quot; total files &quot; + files.length );
+			var file = files[i];
+			this.readFile(file, (i == files.length - 1));
+		}
+		
+		waitForFiles = true;
+	}
+		
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;&quot; + collection + &quot;&#x2F;insert&quot;;
+	this.sendInsert(url, finalData, responder, waitForFiles);
+	
+};
+&#x2F;**
+ * Returns all of the documents in a collection.
+ * 
+ * @method searchAllDocuments
+ * @param {String} collection The name of the collection to search
+ * @param {function(CBHelperResponseInfo)} responder A function to handle the reponse returned by cloudbase.io
+ * 	in the form of a CBHelperResponseInfo object
+ *&#x2F;
+CBHelper.prototype.searchAllDocuments = function(collection, responder) {
+	this.searchDocuments({}, collection, responder);
+};
+&#x2F;**
+ * Returns the documents matching the given set of conditions. For a complete description of the 
+ * possible conditions see the REST APIs documentation on http:&#x2F;&#x2F;cloudbase.io&#x2F;documentation&#x2F;rest-apis
+ * 
+ * @method searchDocuments
+ * @param {Object} conditions The object representing the search conditions: { &#x27;first_name&#x27; : &#x27;cloud&#x27; }
+ * @param {String} collection The name of the collection to search
+ * @param {function(CBHelperResponseInfo)} responder A function to handle the reponse returned by cloudbase.io
+ * 	in the form of a CBHelperResponseInfo object
+ *&#x2F;
+CBHelper.prototype.searchDocuments = function(conditions, collection, responder) {
+	var params = {
+		&quot;cb_search_key&quot; : conditions
+	};
+	
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;&quot; + collection + &quot;&#x2F;search&quot;;
+	this.sendHttpRequest(&quot;data&quot;, url, params, responder);
+};
+&#x2F;**
+ * Overwrites the documents matching the given conditions with the new objects passed to the method. 
+ * Works in exactly the same way as an SQL update.
+ * 
+ * @method updateDocument
+ * @param {Object} data The data of the new objects
+ * @param {Object} conditions The object representing the search conditions: { &#x27;first_name&#x27; : &#x27;cloud&#x27; }
+ * @param {String} collection The name of the collection to search
+ * @param {Array} files The list of files to be attached to the document - this should be an array of full paths
+ * 	Array(&#x27;&#x2F;tmp&#x2F;test.csv&#x27;, &#x27;&#x2F;sd&#x2F;media&#x2F;image01.jpg&#x27;);
+ * @param {function(CBHelperResponseInfo)} responder A function to handle the reponse returned by cloudbase.io
+ * 	in the form of a CBHelperResponseInfo object
+ *&#x2F;
+CBHelper.prototype.updateDocument = function(data, conditions, collection, files, responder) {
+	var finalData;
+	var dataType = typeof data;
+	if (dataType !== &#x27;array&#x27;) {
+		data.cb_search_key = conditions;
+		finalData = new Array(data);
+	} else {
+		finalData = new Array();
+		for (var i = 0; i &lt; data.length; i++) {
+			var curObject = data[i];
+			curObject.cb_search_key = conditions;
+			finalData.push(curObject);
+		}
+	}
+	
+	if (files != null &amp;&amp; files.length &gt; 0) {
+		this.filesLoaded = false;
+		this.attachmentData = null;
+		&#x2F;&#x2F;for (var file in files) {
+		for (var i = 0; i &lt; files.length; i++) {
+			mosync.rlog(&quot;cur file &quot; + i + &quot; total files &quot; + files.length );
+			var file = files[i];
+			this.readFile(file, (i == files.length - 1));
+		}
+		
+		waitForFiles = true;
+	}
+	
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;&quot; + collection + &quot;&#x2F;update&quot;;
+	this.sendInsert(url, finalData, responder, waitForFiles);
+};
+
+&#x2F;&#x2F; TODO: File download function
+
+&#x2F;&#x2F; &#x2F;CloudBase functions
+
+&#x2F;&#x2F; Push notification functions
+&#x2F;**
+ * Once the device is ready to receive push notifications subscribe the device to a channel (or
+ * create a new one) on the cloudbase.io servers. From the moment the the device is subscribed 
+ * all new notifications sent to the particular channel will be pushed to it.
+ * By default all devices are part of the &quot;all&quot; channel.
+ * 
+ * @method subscribeDevice
+ * @param {String} token The token received from the Apple&#x2F;Google&#x2F;Microsoft servers when the device is
+ * 	registered for notifications
+ * @param {String} channel The name of the channel the device should be subscribed to
+ * @param {function(CBHelperResponseInfo)} responder A function to handle the reponse returned by cloudbase.io
+ * 	in the form of a CBHelperResponseInfo object
+ *&#x2F;
+CBHelper.prototype.subscribeDevice = function(token, channel, responder) {
+	var params = {
+		&quot;action&quot; : &quot;subscribe&quot;,
+		&quot;device_key&quot; : token,
+		&quot;device_network&quot; : this.getDevicePlatform(),
+		&quot;channel&quot; : channel
+	};
+	
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;notifications-register&quot;;
+	this.sendHttpRequest(&quot;notifications-register&quot;, url, finalData, responder);
+};
+&#x2F;**
+ * Removes the device from the given notification channel.
+ * 
+ * @method unsubscribeDevice
+ * @param {String} token The token received from the Apple&#x2F;Google&#x2F;Microsoft servers when the device is
+ * 	registered for notifications
+ * @param {String} channel The name of the channel the device should be subscribed to
+ * @param {bool} removeCompletely If this parameter is set to true then the device is also removed from the &quot;all&quot; channel
+ *&#x2F;
+CBHelper.prototype.unsubscribeDevice = function(token, channel, removeCompletely) {
+	var params = {
+		&quot;action&quot; : &quot;unsubscribe&quot;,
+		&quot;device_key&quot; : token,
+		&quot;device_network&quot; : this.getDevicePlatform(),
+		&quot;channel&quot; : channel,
+		&quot;from_all&quot; : (removeCompletely?&quot;true&quot;:&quot;false&quot;)
+	};
+	
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;notifications-register&quot;;
+	this.sendHttpRequest(&quot;notifications-register&quot;, url, finalData, responder);
+};
+&#x2F;**
+ * If the application security settings on cloudbase.io allow it then the client can send push notifications
+ * to other devices.
+ * 
+ * @method sendNotification
+ * @param {String} text The text of the notification.
+ * @param {String} channel The name of the channel the device should be subscribed to
+ * @param {int} badge The Badge to be used for the notification (iOS)
+ * @param {String} sound The sound for the notification (iOS)
+ * @param {String} certificateType The certificate type to be used for the notification - either &quot;development&quot; or &quot;production&quot; (iOS)
+ *&#x2F;
+CBHelper.prototype.sendNotification = function(text, channel, badge, sound, certificateType) { &#x2F;&#x2F; certificateTypes: production&#x2F;development
+	badge = (badge = typeof badge !== &#x27;undefined&#x27;?badge:-1);
+	sound = (sound = typeof sound !== &#x27;undefined&#x27;?sound:&quot;&quot;);
+	
+	var params = {
+		&quot;channel&quot; : channel,
+		&quot;cert_type&quot; : certificateType,
+		&quot;alert&quot; : text,
+		&quot;badge&quot; : badge,
+		&quot;sound&quot; : sound
+	};
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;notifications&quot;;
+	this.sendHttpRequest(&quot;notifications&quot;, url, finalData, responder);
+};
+&#x2F;**
+ * Sends an email to the given recipient using a template previously created on cloudbase.io.
+ * Email templates can be managed from the application control panel on cloudbase.io
+ * 
+ * @method sendNotification
+ * @param {String} recipient The email address of the recipient
+ * @param {String} subject The subject of the email
+ * @param {String} templateCode The unique identifier of the template
+ * @param {Object} vars An associative array of varibles to fill the template { &#x27;first_name&#x27; : &#x27;Cloud&#x27; }
+ * 	For more information on how to use these variables in a template see the cloudbase.io documentation
+ *&#x2F;
+CBHelper.prototype.sendEmail = function(recipient, subject, templateCode, vars) {
+	var params = {
+		&quot;template_code&quot; : templateCode,
+		&quot;recipient&quot; : recipient,
+		&quot;subject&quot; : subject,
+		&quot;variables&quot; : avrs
+	};
+	
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;email&quot;;
+	this.sendHttpRequest(&quot;email&quot;, url, params, responder);
+};
+&#x2F;&#x2F; &#x2F;Push notification functions
+
+&#x2F;&#x2F; CloudFunction functions
+&#x2F;**
+ * Executes a CloudFunction on the cloudbase.io servers. Additional POST parameters
+ * can be specified in this method.
+ * 
+ * @method executeCloudFunction
+ * @param {String} functionCode The unique code assigned by cloudbase.io to the CloudFunction
+ * @param {Object} params A list of additional parameters for the CloudFunction (if needed)
+ * @param {function(CBHelperResponseInfo)} responder A function to handle the reponse returned by cloudbase.io
+ * 	in the form of a CBHelperResponseInfo object
+ *&#x2F;
+CBHelper.prototype.executeCloudFunction = function(functionCode, params, responder) {
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;cloudfunction&#x2F;&quot; + functionCode;
+    
+    this.sendHttpRequest(&quot;cloudfunction&quot;, url, null, params, responder);
+};
+&#x2F;**
+ * Executes one of the standard Applets provided by cloudbase.io - the list of applets
+ * and their documentation can be found at http:&#x2F;&#x2F;cloudbase.io&#x2F;documentation&#x2F;applets
+ * 
+ * @method executeApplet
+ * @param {String} appletCode The unique code of the applet
+ * @param {Object} params A list of additional parameters for the applet (if needed)
+ * @param {function(CBHelperResponseInfo)} responder A function to handle the reponse returned by cloudbase.io
+ * 	in the form of a CBHelperResponseInfo object
+ *&#x2F;
+CBHelper.prototype.executeApplet = function(appletCode, params, responder) {
+	url = this.generateUrl() + &quot;&#x2F;&quot; + this.appCode + &quot;&#x2F;appler&#x2F;&quot; + appletCode;
+    
+    this.sendHttpRequest(&quot;cloudfunction&quot;, url, null, params, responder);
+};
+&#x2F;&#x2F; &#x2F;CloudFunction functions    
+
+CBHelper.prototype.getDevicePlatform = function() {
+	var devicePlatform = device.platform;
+	
+	if (devicePlatform == &#x27;iPhone&#x27;) {
+		return &#x27;ios&#x27;;
+	} else if (devicePlatform == &#x27;Android&#x27;) {
+		return &#x27;and&#x27;;
+	} else {
+		return &#x27;winmo&#x27;;
+	}
+}
+
+CBHelper.prototype.readFile = function(fileName, isLast) {
+	try {
+		window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, function(fileSystem) {
+			mosync.rlog(&quot;file system &quot; + fileSystem.name + &quot; - &quot; +  fileName );
+			var fullPath = fileName.split(&#x27;&#x2F;&#x27;);
+			var finalPath = &quot;fileSystem.root&quot;;
+			var relFileName = &quot;&quot;;
+			for (var i = 0; i &lt; fullPath.length; i++) {
+				if (fullPath[i] == &quot;&quot;)
+					continue;
+					
+				if (i == fullPath.length - 1)
+					relFileName = fullPath[i]
+				else
+					finalPath += &quot;.&quot; + fullPath[i];
+			}
+			var folderObject;
+			finalPath = &quot;fileSystem.root&quot;;
+			eval(&quot;folderObject = &quot; + finalPath + &quot;;&quot;);
+			mosync.rlog(&quot;finalPath = &quot; + finalPath + &quot; file name: &quot; + relFileName);
+			mosync.rlog(&quot;folder: &quot; + typeof folderObject);
+			folderObject.getFile(relFileName, null, function(fileEntry) { &#x2F;&#x2F; TODO: not getting anywhere from here!!
+				mosync.rlog(&quot;file entry&quot;);
+				fileEntry.file(function(file) {
+					mosync.rlog(&quot;file&quot;);
+					var reader = new FileReader();
+			        reader.onloadend = function(evt) {
+			            mosync.rlog(&quot;read as url&quot;);
+			            mosync.rlog(evt.target.result);
+			            if (isLast)
+			            	this.filesLoaded = true;
+			        };
+			        &#x2F;&#x2F;reader.readAsDataURL(file);
+				}, function(evt) { mosync.rlog(&quot;Error reading file: &quot; + JSON.stringify(evt)); });
+			}, function(evt) { mosync.rlog(&quot;Error reading file: &quot; + JSON.stringify(evt)); });
+		}, function(evt) { mosync.rlog(&quot;Error reading file: &quot; + JSON.stringify(evt)); });
+	} catch (ex) {
+		mosync.rlog(&quot;Error reading &quot; + ex);
+		this.filesLoaded = true;
+	}
+};
+
+CBHelper.prototype.sendHttpRequest = function(cloudbaseFunction, url, params, responder) {
+	this.sendHttpRequest(cloudbaseFunction, url, params, null, responder);
+};
+CBHelper.prototype.sendHttpRequest = function(cloudbaseFunction, url, params, additionalParams, responder) {
+	var paramString = this.prepareRequestParams(params, additionalParams);
+	mosync.rlog(&quot;Sending: &quot; + JSON.stringify(params));
+	var oXMLHttpRequest	= new XMLHttpRequest;
+	oXMLHttpRequest.open(&quot;POST&quot;, url, false);
+	oXMLHttpRequest.setRequestHeader(&quot;Content-type&quot;, &quot;application&#x2F;x-www-form-urlencoded&quot;);
+	oXMLHttpRequest.setRequestHeader(&quot;Content-length&quot;, paramString.length);
+	oXMLHttpRequest.onreadystatechange	= function() {
+		mosync.rlog(&quot;responseData: &quot; + oXMLHttpRequest.responseText);
+		if (this.readyState == XMLHttpRequest.DONE) {
+			
+			var outputData = this.parseOutput(oXMLHttpRequest.status, oXMLHttpRequest.responseText, cloudbaseFunction);
+			
+			if (responder = typeof responder !== &#x27;undefined&#x27;)
+				responder(outputData);
+		}
+	}
+	oXMLHttpRequest.send(paramString);
+};
+
+CBHelper.prototype.parseOutput = function(httpStatus, data, cloudbaseFunction) {
+	var output = new CBHelperResponseInfo();
+	output.cloudbaseFunction = cloudbaseFunction;
+	output.outputString = data;
+	try {
+		var theData = JSON.parse(data);
+		output.outputData = theData[cloudbaseFunction];
+		output.callStatus = (theData[cloudbaseFunction][&quot;status&quot;] == &quot;OK&quot;);
+		output.outputData = theData[cloudbaseFunction][&quot;message&quot;];
+		output.errorMessage = theData[cloudbaseFunction][&quot;error&quot;];
+	} catch (ex) {
+		mosync.rlog(&quot;Exception while parsing data: &quot; + ex);
+		output.callStatus = false;
+		output.errorMessage = &quot;Error while parsing response data: &quot; + ex;
+	}
+	
+	return output;
+};
+
+CBHelper.prototype.prepareRequestParams = function(params, additionalParams) {
+	var params = &quot;app_uniq=&quot; + this.appUniq + &quot;&amp;app_pwd=&quot; + this.password + &quot;&amp;device_uniq=&quot; + this.deviceUniqueIdentifier + &quot;&amp;post_data=&quot; + JSON.stringify(params);
+	
+	if (additionalParams = typeof additionalParams !== &#x27;undefined&#x27;) {
+		for (var key in additionalParams) {
+			params += &quot;&amp;&quot; + key + &quot;=&quot; + additionalParams[key];
+		}
+	}
+	
+	if (typeof currentLocation === &#x27;CBHelperCurrentLocation&#x27;) {
+		params += &quot;&amp;current_location=&quot; + JSON.stringify(this.currentLocation);
+	}
+	return params;
+};
+
+CBHelper.prototype.generateUrl = function() {
+	return (this.isHttps?&quot;http&quot;:&quot;http&quot;) + &quot;:&#x2F;&#x2F;&quot; + this.domain;
+};
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="..&#x2F;assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="..&#x2F;assets/js/yui-prettify.js"></script>
+<script src="..&#x2F;assets/../api.js"></script>
+<script src="..&#x2F;assets/js/api-filter.js"></script>
+<script src="..&#x2F;assets/js/api-list.js"></script>
+<script src="..&#x2F;assets/js/api-search.js"></script>
+<script src="..&#x2F;assets/js/apidocs.js"></script>
+</body>
+</html>
