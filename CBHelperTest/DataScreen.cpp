@@ -177,7 +177,7 @@ void DataScreen::createUI()
 void DataScreen::buttonClicked(Widget* button)
 {
 	if (button == mInsertButton) {
-		TestData doc("Stefano", "Buliani", "method");
+		TestData doc("Cloud", "Base", "method");
 		mScreen->helper->insertDocument("users_data_tab", dynamic_cast<CBSerializable*>(&doc), NULL, NULL);
 	}
 
@@ -187,7 +187,10 @@ void DataScreen::buttonClicked(Widget* button)
 
 	if (button == mSearchButton) {
 		CBSearchResponder* resp = new CBSearchResponder();
-		this->mScreen->helper->searchDocument("users", CBHelperSearchCondition("first_name", "Stefano", CBOperatorEqual), (CBHelperResponder*)resp);
+		CBHelperSearchCondition cond = CBHelperSearchCondition("first_name", "Cloud", CBOperatorEqual);
+		cond.addSortField("first_name", CBSortDescending);
+		cond.limit = 1;
+		this->mScreen->helper->searchDocument("users_data_tab", cond, (CBHelperResponder*)resp);
 	}
 
 	if (button == mDownloadButton) {

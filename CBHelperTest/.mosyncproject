@@ -16,12 +16,12 @@
 </criteria>
 <properties>
 <property key="build.prefs:additional.include.paths/Debug" value="%project:CBHelper%"/>
-<property key="build.prefs:additional.include.paths/Release" value=""/>
+<property key="build.prefs:additional.include.paths/Release" value="%project:CBHelper%"/>
 <property key="build.prefs:additional.libraries" value="MAUtil.lib"/>
 <property key="build.prefs:additional.libraries/Debug" value="NativeUI.lib, Notification.lib, CBHelper.lib"/>
-<property key="build.prefs:additional.libraries/Release" value="MAUtil.lib, yajl.lib"/>
-<property key="build.prefs:additional.library.paths/Debug" value="%project:CBHelper%/Output/Release/"/>
-<property key="build.prefs:additional.library.paths/Release" value=""/>
+<property key="build.prefs:additional.libraries/Release" value="NativeUI.lib, Notification.lib, CBHelper.lib"/>
+<property key="build.prefs:additional.library.paths/Debug" value="%project:CBHelper%/Output/Debug/"/>
+<property key="build.prefs:additional.library.paths/Release" value="%project:CBHelper%/Output/Release/"/>
 <property key="build.prefs:app.permissions" value="Compass File\ Storage File\ Storage/Read File\ Storage/Write Internet\ Access Location Location/Coarse Location/Fine Push\ Notifications Vibration"/>
 <property key="build.prefs:dead.code.elim/Debug" value="true"/>
 <property key="build.prefs:extra.link.sw/Debug" value=""/>
@@ -31,7 +31,8 @@
 <property key="build.prefs:gcc.warnings/Debug" value="0"/>
 <property key="build.prefs:gcc.warnings/Release" value="0"/>
 <property key="build.prefs:ignore.default.include.paths/Debug" value="false"/>
-<property key="build.prefs:ignore.default.libraries/Debug" value="true"/>
+<property key="build.prefs:ignore.default.libraries/Debug" value="false"/>
+<property key="build.prefs:ignore.default.libraries/Release" value="true"/>
 <property key="build.prefs:ignore.default.library.paths/Debug" value="false"/>
 <property key="build.prefs:project.type" value=""/>
 <property key="dependency.strategy" value="0"/>

@@ -44,7 +44,7 @@ void CBHelper::baseInit() {
 	this->getSystemProperty("mosync.device.OS", this->deviceModel);
 	this->getSystemProperty("mosync.device.OS.version", this->deviceVersion);
 
-	printf("getting OS: %s", this->deviceModel.c_str());
+	//printf("getting OS: %s", this->deviceModel.c_str());
 	if (MAUtil::lowerString(this->deviceModel).find("android", 0) >= 0) {
 		this->notificationNetwork = "and";
 	} else if (MAUtil::lowerString(this->deviceModel).find("ios", 0) >= 0) {
@@ -103,7 +103,7 @@ void CBHelper::logNavigation(String screenName) {
 void CBHelper::insertDocument(String collectionName, CBSerializable* data, CBHelperResponder* responder) {
 	CBHttpConnection* con = this->createConnection("data");
 
-	printf("insert document %s ", data->serialize().c_str());
+	//printf("insert document %s ", data->serialize().c_str());
 
 	String url = this->generateURL();
 	url += "/" + this->appCode;
@@ -116,7 +116,7 @@ void CBHelper::insertDocument(String collectionName, CBSerializable* data, MAUti
 	CBHttpConnection* con = this->createConnection("data");
 	con->atts = atts;
 
-	printf("insert document %s ", data->serialize().c_str());
+	//printf("insert document %s ", data->serialize().c_str());
 
 	String url = this->generateURL();
 	url += "/" + this->appCode;
@@ -252,8 +252,8 @@ int CBHelper::getSystemProperty(const char* key, MAUtil::String& dst) {
 
 CBRegisterDeviceResponder::CBRegisterDeviceResponder(CBHelper* helperInstance) { this->helper = helperInstance; }
 void CBRegisterDeviceResponder::parseResponse(CBHelperResponseInfo* resp, YAJLDom::Value* responseMessage) {
-	printf("responder called. status = %s ", resp->outputString.c_str());
-	printf("response message %s", responseMessage->getValueForKey("output")->toString().c_str());
+	//printf("responder called. status = %s ", resp->outputString.c_str());
+	//printf("response message %s", responseMessage->getValueForKey("output")->toString().c_str());
 	this->helper->sessionId = responseMessage->getValueForKey("sessionid")->toString();
 }
 

@@ -25,6 +25,8 @@ CBHttpConnection::CBHttpConnection(String appCode, String appUniq, String passwo
 	this->password = password;
 	this->deviceUniqueIdentifier = deviceUniq;
 	this->function = function;
+	this->totWrites = 0;
+	this->tmpWrites = 0;
 
 	this->authPassword = "";
 	this->authUsername = "";
@@ -37,25 +39,15 @@ void CBHttpConnection::buildParamBody(String paramName, String paramValue) {
 	output += "content-disposition: form-data; name=\"" + paramName;
 	output += "\"\r\n\r\n";
 	output += paramValue + "\r\n";
+	//this->theConnection.write(output.c_str(), output.length());
+	//this->parameters.add(output);
+	CBHttpConnectionParameter param;
+	param.name = paramName;
+	param.value = output;
+	param.isFile = false;
 
-	this->theConnection.write(output.c_str(), output.length());
-}
-
-// this is an accessory method to calculate the size of a request
-int CBHttpConnection::getParamBodySize(String paramName, String paramValue) {
-	String output = "--";
-	output += REQUEST_PARAMETER_BOUNDARY;
-	output += "\r\n";
-	output += "content-disposition: form-data; name=\"" + paramName;
-	output += "\"\r\n\r\n";
-	output += paramValue + "\r\n";
-
-	// increase the number of writes to the connection stream. This counter is used in the writeFinished method
-	// to keep track of how many writes we are missing
+	this->parameters.add(param);
 	this->totWrites++;
-
-
-	return output.length();
 }
 
 // writes a file data to the multipart request
@@ -67,6 +59,31 @@ void CBHttpConnection::buildFileBody(CBHelperAttachment att, int counter) {
 	output += "\"; filename=\"" + att.fileName;
 	output += "\"\r\n\r\n";
 
+	CBHttpConnectionParameter fileIntro;
+	fileIntro.name = att.fileName;
+	fileIntro.value = output;
+	fileIntro.isFile = false;
+
+	this->parameters.add(fileIntro);
+	this->totWrites++;
+
+	CBHttpConnectionParameter param;
+	param.name = att.fileName;
+	param.fileData = att.fileData;
+	param.isFile = true;
+
+	this->parameters.add(param);
+	this->totWrites++;
+
+	CBHttpConnectionParameter fileClose;
+	fileClose.name = att.fileName;
+	fileClose.value = "\r\n";
+	fileClose.isFile = false;
+
+	this->parameters.add(fileClose);
+	this->totWrites++;
+
+	/*
 	this->theConnection.write(output.c_str(), output.length());
 	// Write the request separator
 
@@ -76,36 +93,15 @@ void CBHttpConnection::buildFileBody(CBHelperAttachment att, int counter) {
 
 	String closing = "\r\n";
 	this->theConnection.write(closing.c_str(), closing.length());
-}
-
-int CBHttpConnection::getFileBodySize(CBHelperAttachment att, int counter) {
-	String output = "--";
-	output += REQUEST_PARAMETER_BOUNDARY;
-	output += "\r\n";
-	output += "content-disposition: attachment; name=\"file_" + counter;
-	output += "\"; filename=\"" + att.fileName;
-	output += "\"\r\n\r\n";
-	output += "\r\n";
-
-	// increase the number of writes to the connection stream. This counter is used in the writeFinished method
-	// to keep track of how many writes we are missing
-	this->totWrites++;
-	this->totWrites++;
-	this->totWrites++;
-
-	return output.length() + att.fileSize;
+	*/
 }
 
 void CBHttpConnection::prepareParameters(CBSerializable* parameters, bool isArray) {
-	printf("start writing params...");
 	// The spacer element and log lines have been added here because of issues with Android not syncronizing the
 	// writes to the connection correctly.
-	this->buildParamBody("cb_spacer", "cloudbase.io spacer");
-	printf("1");
+
 	this->buildParamBody("app_uniq", this->appUniq);
-	printf("1");
 	this->buildParamBody("app_pwd", this->password);
-	printf("1");
 	this->buildParamBody("device_uniq", this->deviceUniqueIdentifier);
 
 	// If we have authentication parameters write them to the request. For documentation on this see
@@ -129,7 +125,6 @@ void CBHttpConnection::prepareParameters(CBSerializable* parameters, bool isArra
 	if (parameters != NULL) {
 		String jsonOutput = parameters->serialize().c_str();
 
-		printf("sending %s\n", jsonOutput.c_str());
 		this->buildParamBody("post_data", jsonOutput);
 	}
 
@@ -148,8 +143,9 @@ void CBHttpConnection::prepareParameters(CBSerializable* parameters, bool isArra
 		for (int i = 0; i < this->atts.size(); i++) {
 			if(this->atts[i].fileData < 0) {
 				printf("Invalid file handle %i\n", this->atts[i].fileData);
-			} else
+			} else {
 				this->buildFileBody(this->atts[i], i);
+			}
 		}
 	}
 
@@ -159,59 +155,37 @@ void CBHttpConnection::prepareParameters(CBSerializable* parameters, bool isArra
 	output += REQUEST_PARAMETER_BOUNDARY;
 	output += "--\r\n";
 
-	this->theConnection.write(output.c_str(), output.length());
+	CBHttpConnectionParameter closeRequest;
+	closeRequest.name = "closing";
+	closeRequest.value = output;
+	closeRequest.isFile = false;
+
+	this->parameters.add(closeRequest);
+	this->totWrites++;
+}
+
+void CBHttpConnection::writeElement(int index) {
+	CBHttpConnectionParameter param = this->parameters[index];
+
+	if (param.isFile) {
+		theConnection.writeFromData(param.fileData, 0, maGetDataSize(param.fileData));
+	} else {
+		theConnection.write(param.value.c_str(), param.value.length());
+	}
 }
 
 // This method runs the same commands as the prepareParameters but returns the size of the request
 // to be set in the httpConnection header
-int CBHttpConnection::calculateRequestSize(CBSerializable* parameters, bool isArray) {
+int CBHttpConnection::calculateRequestSize() {
 	int bodySize = 0;
-	bodySize += this->getParamBodySize("cb_spacer", "cloudbase.io spacer");
-	bodySize += this->getParamBodySize("app_uniq", this->appUniq);
-	bodySize += this->getParamBodySize("app_pwd", this->password);
-	bodySize += this->getParamBodySize("device_uniq", this->deviceUniqueIdentifier);
 
-	if (this->authUsername != "") {
-		bodySize += this->getParamBodySize("cb_auth_user", this->authUsername);
-		bodySize += this->getParamBodySize("cb_auth_password", this->authPassword);
+	for (int i = 0; i < this->parameters.size(); i++) {
+		CBHttpConnectionParameter par = this->parameters[i];
+		if (par.isFile)
+			bodySize += maGetDataSize(par.fileData);
+		else
+			bodySize += par.value.length();
 	}
-
-	if (this->currentLocation.isValid()) {
-		MAUtil::String location = "";
-
-		location += "{ \"lat\" : \"" + doubleToString(this->currentLocation.lat, 6);
-		location += "\", \"lng\" : \"" + doubleToString(this->currentLocation.lon, 6);
-		location += "\" }";
-		bodySize += this->getParamBodySize("location_data", location);
-	}
-
-	if (parameters != NULL) {
-		String jsonOutput = parameters->serialize().c_str();
-
-		bodySize += this->getParamBodySize("post_data", jsonOutput);
-	}
-
-	if (!this->additionalPostParams->size() > 0) {
-		Map<String, String>::Iterator iter = this->additionalPostParams->begin();
-		for(Map<String, String>::Iterator iter = this->additionalPostParams->begin();
-				iter != this->additionalPostParams->end();
-			    iter++) {
-			bodySize += this->getParamBodySize(iter->first, iter->second);
-		}
-	}
-
-	if (this->atts.size() > 0) {
-		for (int i = 0; i < this->atts.size(); i++) {
-			bodySize += this->getFileBodySize(this->atts[i], i);
-		}
-	}
-
-	String output = "";
-	output += "--";
-	output += REQUEST_PARAMETER_BOUNDARY;
-	output += "--\r\n";
-	bodySize += output.length();
-	this->totWrites++;
 
 	return bodySize;
 }
@@ -226,29 +200,31 @@ void CBHttpConnection::sendRequest(String url,  CBSerializable* parameters, CBHe
 	if (res < 0) {
 		printf("No connection");
 	} else {
+		theConnection.setListener(this);
 		theConnection.setRequestHeader("User-Agent", CBHELPER_USER_AGENT);
 		String contentType = "multipart/form-data; boundary=";
 		contentType += REQUEST_PARAMETER_BOUNDARY;
 		theConnection.setRequestHeader("Content-Type", contentType.c_str());
 
-		// use the accessory method to calculate the size of the request
-		String length = Convert::toString(this->calculateRequestSize(parameters, isArray));
-		theConnection.setRequestHeader("content-length", length.c_str());
+		this->prepareParameters(parameters, isArray);
 
+		// use the accessory method to calculate the size of the request
+		String length = Convert::toString(this->calculateRequestSize());
+		theConnection.setRequestHeader("content-length", length.c_str());
 		this->CBResponder = responder; // set the shared responder to be called once the response is fully received
 
-		// this method writes directly to the shared httpConnection stream. Each write increments
-		// a shared counter (totWrites) which is then used in the connWriteFinished method to monitor
-		// the status and call the finish() method of the httpConnection
-		this->prepareParameters(parameters, isArray);
+		//start writing parameters
+		this->writeElement(0);
 	}
 }
 
 void CBHttpConnection::connWriteFinished (Connection *conn, int result) {
 	this->tmpWrites++;
-	printf("tot writes: %i, current %i", this->totWrites, this->tmpWrites);
+	//printf("tot writes: %i, current %i", this->totWrites, this->tmpWrites);
 	if (this->tmpWrites == this->totWrites) // if we have written all of the parameters we needed to write then post
 		theConnection.finish();
+	else
+		this->writeElement(this->tmpWrites);
 }
 
 
@@ -266,8 +242,6 @@ void CBHttpConnection::connReadFinished (Connection *conn, int result) {
 }
 
 void CBHttpConnection::connRecvFinished(Connection* conn, int result) {
-	printf("recv finished");
-
 	if(result > 0) {
 		if (this->isDownload) {
 			conn->recvToData(downloadFileData, 0, CONNECTION_BUFFER_SIZE);
@@ -275,7 +249,6 @@ void CBHttpConnection::connRecvFinished(Connection* conn, int result) {
 			responseOutputString.append(mBuffer, result);
 			memset(this->mBuffer, 0, CONNECTION_BUFFER_SIZE);
 			theConnection.recv(mBuffer, CONNECTION_BUFFER_SIZE);
-			printf("receiving %s", responseOutputString.c_str());
 		}
 	} else
 		printf("Error retrieving response %i", result);
@@ -283,17 +256,13 @@ void CBHttpConnection::connRecvFinished(Connection* conn, int result) {
 
 
 void CBHttpConnection::httpFinished(MAUtil::HttpConnection *conn, int result) {
-	printf("Connection finished %i", result);
-
 	if ( result >= 0) {
 		String contentLengthStr;
-		printf("getting length");
 		theConnection.getResponseHeader("Content-Length",
 			&contentLengthStr);
-		printf("got length");
 		int contentLength = 0;
 		contentLength = atoi(contentLengthStr.c_str());
-		printf("received content length: %s", contentLengthStr.c_str());
+		//printf("received content length: %s", contentLengthStr.c_str());
 		mBuffer[contentLength] = 0;
 		if (this->isDownload) {
 			this->downloadFileData = maCreatePlaceholder();
@@ -308,14 +277,12 @@ void CBHttpConnection::httpFinished(MAUtil::HttpConnection *conn, int result) {
 }
 
 void CBHttpConnection::parseResponseOutput(int statusCode, String function, CBHelperResponder* responder) {
-	printf("parse...");
 	CBHelperResponseInfo resp;
 
 	resp.httpStatusCode = statusCode;
 	resp.function = function;
 
-	printf("buffer size: %i", sizeof(mBuffer));
-	printf("creating YAJLDom");
+	//printf("buffer size: %i", sizeof(mBuffer));
 	YAJLDom::Value* root = YAJLDom::parse(
 	        (const unsigned char*)mBuffer,
 	        sizeof(mBuffer));

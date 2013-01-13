@@ -48,7 +48,6 @@ CBHelperSearchCondition::CBHelperSearchCondition() {
 	this->baseInit();
 }
 CBHelperSearchCondition::CBHelperSearchCondition(String field, String value, CBConditionOperator op) {
-	printf("initconditions");
 	this->baseInit();
 
 	this->field_ = field;
@@ -84,6 +83,14 @@ void CBHelperSearchCondition::baseInit() {
 	//this->conditions_;
 	this->field_ = "";
 	this->value_ = "";
+	this->limit = -1;
+}
+
+void CBHelperSearchCondition::addSortField(String fieldName, CBSortDirection dir) {
+	String sortField = "{ \"";
+	sortField += fieldName + "\" : ";
+	sortField += dir + " }";
+	this->sortFields_.add(sortField);
 }
 
 String CBHelperSearchCondition::serialize() {
@@ -96,8 +103,23 @@ String CBHelperSearchCondition::serialize() {
 
 String CBHelperSearchCondition::serialize(CBHelperSearchCondition* cond, bool isTop) {
 	String output = "{ ";
-	if (isTop)
-		 output += "\"cb_search_key\" : { ";
+	if (isTop) {
+		if (!cond->sortFields_.empty()) {
+			output += "\"cb_sort_key\" : [";
+			for (int i = 0; i < cond->sortFields_.size(); i++) {
+				output += cond->sortFields_[i];
+				if (i < cond->sortFields_.size() - 1)
+					output += ", ";
+			}
+			output += " ], ";
+		}
+
+		if (cond->limit > 0) {
+			output += "\"cb_limit\" : " + cond->limit;
+			output += ", ";
+		}
+		output += "\"cb_search_key\" : { ";
+	}
 
 	if (cond->field_ == "") {
 		if (!cond->conditions_.empty()) {

@@ -57,6 +57,14 @@ typedef enum CBConditionLink {
 } CBConditionLink;
 
 /**
+ * Direction for sorting of search results
+ */
+typedef enum CBSortDirection {
+	CBSortAscending = 1, //!< CBSortAscending
+	CBSortDescending = -1//!< CBSortDescending
+} CBSortDirection;
+
+/**
  * This class represents a set of conditions to run a search over your CloudBase - this is the equivalent
  * representation of a WHERE clause in SQL.
  * Each condition can have a number of sub-conditions and each one is linked to the previous using a CBConditionLink
@@ -111,6 +119,13 @@ public:
 	 * @param newCond The new condition to be added
 	 */
 	void addCondition(CBHelperSearchCondition* newCond);
+	/**
+	 * Add a sorting condition to your search. You can add multiple fields to sort by.
+	 * It is only possible to sort on top level fields and not on objects.
+	 * @param fieldName The name of the field in the collection
+	 * @param dir A CBSortDirection value
+	 */
+	void addSortField(String fieldName, CBSortDirection dir);
 
 	// internal methods used to serialize a CBCondition object and its sub-conditions.
 	String serialize();
@@ -121,6 +136,11 @@ public:
 	int conditionOperator_;
 	int contidionLink_;
 	Vector<CBHelperSearchCondition*> conditions_;
+	Vector<String> sortFields_;
+	/**
+	 * This property is the maximum number of results to be returned by the search
+	 */
+	int limit;
 protected:
 	void baseInit();
 

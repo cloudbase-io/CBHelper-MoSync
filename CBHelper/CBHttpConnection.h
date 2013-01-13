@@ -27,6 +27,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
 #include "CBHelperResponder.h"
 #include "CBSerializable.h"
 #include "CBHelperAttachment.h"
+#include "CBHttpConnectionParameter.h"
 
 #define CONNECTION_BUFFER_SIZE 40000
 #define REQUEST_PARAMETER_BOUNDARY "---------------------------14737809831466499882746641449"
@@ -92,8 +93,12 @@ private:
 	char mBuffer[CONNECTION_BUFFER_SIZE];
 	MAHandle downloadFileData;
 	String responseOutputString;
+	MAUtil::Vector<CBHttpConnectionParameter> parameters;
 	//static unsigned char fileData[65536];
 	bool isConnected;
+	bool fileBody;
+	bool fileFinished;
+	bool doneWithParameters;
 
 	/**
 	 * Writes the request with all of the standard parameters and additional attachments and post params.
@@ -103,8 +108,9 @@ private:
 	void prepareParameters(CBSerializable* parameters, bool isArray);
 	void buildParamBody(String paramName, String paramValue);
 	void buildFileBody(CBHelperAttachment att, int counter);
-	int calculateRequestSize(CBSerializable* parameters, bool isArray);
+	int calculateRequestSize();
 	int getParamBodySize(String paramName, String paramValue);
 	int getFileBodySize(CBHelperAttachment att, int counter);
+	void writeElement(int index);
 };
 }
