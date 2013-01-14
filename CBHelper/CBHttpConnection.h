@@ -46,7 +46,7 @@ public:
 	String authUsername; /// The current username and password for the user interacting with the application - if these security settings are setup
 	String authPassword;
 	MAUtil::Vector<CBHelperAttachment> atts; /// An array of file attachments for the request
-	MAUtil::Map<String, String>* additionalPostParams; /// Additional post parameters. This is used by the CloudFunctions and Applet APIs
+	MAUtil::Map<String, String> additionalPostParams; /// Additional post parameters. This is used by the CloudFunctions and Applet APIs
 	bool isDownload; /// whether the object has been created to download a file attachment or call the APIs
 
 	/**

@@ -99,7 +99,6 @@ void CBHttpConnection::buildFileBody(CBHelperAttachment att, int counter) {
 void CBHttpConnection::prepareParameters(CBSerializable* parameters, bool isArray) {
 	// The spacer element and log lines have been added here because of issues with Android not syncronizing the
 	// writes to the connection correctly.
-
 	this->buildParamBody("app_uniq", this->appUniq);
 	this->buildParamBody("app_pwd", this->password);
 	this->buildParamBody("device_uniq", this->deviceUniqueIdentifier);
@@ -129,10 +128,9 @@ void CBHttpConnection::prepareParameters(CBSerializable* parameters, bool isArra
 	}
 
 	// Loop over the Map of additional paramters and append them as standard request parameters
-	if (!this->additionalPostParams->size() > 0) {
-		Map<String, String>::Iterator iter = this->additionalPostParams->begin();
-		for(Map<String, String>::Iterator iter = this->additionalPostParams->begin();
-				iter != this->additionalPostParams->end();
+	if (this->additionalPostParams.size() > 0) {
+		for(Map<String, String>::Iterator iter = this->additionalPostParams.begin();
+				iter != this->additionalPostParams.end();
 			    iter++) {
 			this->buildParamBody(iter->first, iter->second);
 		}
@@ -212,7 +210,6 @@ void CBHttpConnection::sendRequest(String url,  CBSerializable* parameters, CBHe
 		String length = Convert::toString(this->calculateRequestSize());
 		theConnection.setRequestHeader("content-length", length.c_str());
 		this->CBResponder = responder; // set the shared responder to be called once the response is fully received
-
 		//start writing parameters
 		this->writeElement(0);
 	}
@@ -281,7 +278,7 @@ void CBHttpConnection::parseResponseOutput(int statusCode, String function, CBHe
 
 	resp.httpStatusCode = statusCode;
 	resp.function = function;
-
+	resp.outputString = mBuffer;
 	//printf("buffer size: %i", sizeof(mBuffer));
 	YAJLDom::Value* root = YAJLDom::parse(
 	        (const unsigned char*)mBuffer,
@@ -299,6 +296,7 @@ void CBHttpConnection::parseResponseOutput(int statusCode, String function, CBHe
 			resp.errorMessage = "Could not find function data in response";
 		} else {
 			//printf("total child %i", functionData->getNumChildValues());
+			//printf(functionData->toString().c_str());
 			resp.postSuccess = (functionData->getValueForKey("status")->toString() == "OK");
 			resp.errorMessage = functionData->getValueForKey("error")->toString();
 			if (NULL != responder) {

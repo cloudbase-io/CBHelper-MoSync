@@ -193,7 +193,7 @@ void CBHelper::sendNotificationEmail(String templateCode, String recipient, Stri
 	con->sendRequest(url, dynamic_cast<CBSerializable*>(notif), NULL);
 }
 
-void CBHelper::executeCloudFunction(String functionCode, MAUtil::Map<String, String>* params, CBHelperResponder* responder) {
+void CBHelper::executeCloudFunction(String functionCode, MAUtil::Map<String, String> params, CBHelperResponder* responder) {
 	CBHttpConnection* con = this->createConnection("cloudfunction");
 	con->additionalPostParams = params;
 
@@ -204,7 +204,7 @@ void CBHelper::executeCloudFunction(String functionCode, MAUtil::Map<String, Str
 
 	con->sendRequest(url, NULL, responder);
 }
-void CBHelper::executeApplet(String appletCode, MAUtil::Map<String, String>* params, CBHelperResponder* responder) {
+void CBHelper::executeApplet(String appletCode, MAUtil::Map<String, String> params, CBHelperResponder* responder) {
 	CBHttpConnection* con = this->createConnection("applet");
 	con->additionalPostParams = params;
 

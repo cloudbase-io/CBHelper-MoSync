@@ -163,7 +163,7 @@ public:
 	 * @param responder The CBHelperResponder object to handle the response from the cloudbase.io servers which
 	 * includes the output from your CloudFunction
 	 */
-	void executeCloudFunction(String functionCode, MAUtil::Map<String, String>* params, CBHelperResponder* responder = NULL);
+	void executeCloudFunction(String functionCode, MAUtil::Map<String, String> params, CBHelperResponder* responder = NULL);
 	/**
 	 * Executes a cloudbase.io Applet
 	 * @param appletCode The code for the applet
@@ -171,7 +171,7 @@ public:
 	 * @param responder The CBHelperResponder object to handle the response from the cloudbase.io servers which
 	 * contains the output from the Applet
 	 */
-	void executeApplet(String appletCode, MAUtil::Map<String, String>* params, CBHelperResponder* responder = NULL);
+	void executeApplet(String appletCode, MAUtil::Map<String, String> params, CBHelperResponder* responder = NULL);
 
 	/**
 	 * If client authentication is enabled in the cloudbase.io settings then this function sets the username
