@@ -17,6 +17,7 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
 
 #include "MainScreen.h"
 #include "FunctionScreen.h"
+#include "CBPayPal.h"
 
 using namespace Cloudbase;
 
@@ -44,7 +45,7 @@ void FunctionScreen::createUI()
 	setTitle("CloudFunction");
 
 	// Create the screen's main layout widget.
-	VerticalLayout* mMainLayout = new VerticalLayout();
+	mMainLayout = new VerticalLayout();
 	// Make the layout fill the entire screen.
 	mMainLayout->fillSpaceHorizontally();
 	mMainLayout->fillSpaceVertically();
@@ -87,6 +88,16 @@ void FunctionScreen::createUI()
 	mMainLayout->addChild(mExecuteApplet);
 
 	mExecuteApplet->addButtonListener(this);
+
+	mStartPayPal = new Button();
+	mStartPayPal->fillSpaceHorizontally();
+	mStartPayPal->wrapContentVertically();
+	mStartPayPal->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+	mStartPayPal->setTextVerticalAlignment(MAW_ALIGNMENT_CENTER);
+	mStartPayPal->setText("Start PayPal");
+	mMainLayout->addChild(mStartPayPal);
+
+	mStartPayPal->addButtonListener(this);
 }
 
 /**
@@ -99,15 +110,59 @@ void FunctionScreen::buttonClicked(Widget* button)
 	mFunctionCode->hideKeyboard();
 
 	if (button == mExecuteFunction) {
-		CBSearchResponder* resp = new CBSearchResponder();
-		this->mScreen->helper->executeCloudFunction(mFunctionCode->getText(), NULL, resp);
+		this->mScreen->helper->executeCloudFunction(mFunctionCode->getText(), NULL, this);
 	}
 
 	if (button == mExecuteApplet) {
-		MAUtil::Map<String, String>* params;
-		params->insert("search", "#mosync");
+		MAUtil::Map<String, String> params;
+		params.insert("search", "#mosync");
 		CBSearchResponder* resp = new CBSearchResponder();
-		this->mScreen->helper->executeApplet("cb_twitter_search", params, resp);
+		this->mScreen->helper->executeApplet("cb_twitter_search", params, this);
+	}
+
+	if (button == mStartPayPal) {
+		CBPayPalBill newBill = CBPayPalBill();
+		CBPayPalBillItem newItem = CBPayPalBillItem();
+		newItem.amount = 9.99f;
+		newItem.name = "Item purchase for $9.99";
+		newItem.description = "Item description for $9.99";
+		newItem.quantity = 1;
+
+		newBill.name = "Test purchase";
+		newBill.description = "Test purchase for $9.99";
+		newBill.invoiceNumber = "TST_INVOICE_1";
+		newBill.addItem(newItem);
+
+		this->mScreen->helper->preparePayPalPurchase(newBill, true, this);
+	}
+}
+
+void FunctionScreen::webViewHookInvoked (WebView *webView, int hookType, MAHandle urlData) {
+	if (hookType == MAW_CONSTANT_SOFT) {
+		char returnUrl[maGetDataSize(urlData)];
+		maReadData(urlData, &returnUrl, 0, maGetDataSize(urlData));
+
+		printf("soft hook received %s", returnUrl);
+		this->mScreen->helper->completePayPalPurchase(returnUrl, this);
+		//maDestroyPlaceholder(urlData);
+	}
+}
+
+void FunctionScreen::parseResponse(CBHelperResponseInfo resp, YAJLDom::Value* responseMessage) {
+	if (responseMessage->getValueForKey("status")->isNull()) {
+		printf(resp.outputString.c_str());
+		String checkoutUrl = responseMessage->getValueForKey("checkout_url")->toString();
+		String urlPattern = "http://api.cloudbase.io.*";
+		printf("received response from PayPal");
+		payPalWebView_ = new WebView();
+		payPalWebView_->setSoftHook(urlPattern);
+		payPalWebView_->addWebViewListener((WebViewListener*)this);
+		payPalWebView_->openURL(checkoutUrl);
+		payPalWebView_->fillSpaceHorizontally();
+		payPalWebView_->fillSpaceVertically();
+		mMainLayout->addChild(payPalWebView_);
+	} else {
+		mMainLayout->removeChild(payPalWebView_);
 	}
 }
 

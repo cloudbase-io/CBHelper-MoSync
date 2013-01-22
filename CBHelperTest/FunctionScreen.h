@@ -17,13 +17,16 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
 
 #include <MAUtil/FileLister.h>
 #include <NativeUI/Widgets.h>
+#include <NativeUI/WebViewListener.h>
+#include "CBHelperResponder.h"
 
 using namespace NativeUI;
 using namespace Cloudbase;
 
-class FunctionScreen : public Screen,
+class FunctionScreen : public Screen, public CBHelperResponder,
 	public ButtonListener,
-	public EditBoxListener
+	public EditBoxListener,
+	public WebViewListener
 {
 public:
 		/**
@@ -40,6 +43,8 @@ public:
 		 * Create the UI for the color list screen.
 		 */
 		void createUI();
+
+		virtual void webViewHookInvoked (WebView *webView, int hookType, MAHandle urlData);
 private:
 		/**
 		 * This method is called if the touch-up event was inside the
@@ -55,9 +60,16 @@ private:
 		 * @param editBox The edit box object that generated the event.
 		 */
 		virtual void editBoxReturn(EditBox* editBox);
+
+		virtual void parseResponse(CBHelperResponseInfo resp, YAJLDom::Value* responseMessage);
 private:
+		VerticalLayout* mMainLayout;
 		EditBox* mFunctionCode;
 		Button* mExecuteFunction;
 		Button* mExecuteApplet;
+		Button* mStartPayPal;
+
+		WebView* payPalWebView_;
+
 		MainScreen* mScreen;
 };

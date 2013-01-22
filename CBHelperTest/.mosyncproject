@@ -13,6 +13,9 @@
 <filter type="com.mobilesorcery.sdk.capabilities.devices.elementfactory">
 <capabilities optional="" required=""/>
 </filter>
+<filter type="com.mobilesorcery.sdk.capabilities.devices.elementfactory">
+<capabilities optional="" required=""/>
+</filter>
 </criteria>
 <properties>
 <property key="build.prefs:additional.include.paths/Debug" value="%project:CBHelper%"/>

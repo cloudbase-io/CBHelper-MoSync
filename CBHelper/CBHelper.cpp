@@ -136,6 +136,17 @@ void CBHelper::searchDocument(String collectionName, CBHelperSearchCondition con
 
 	con->sendRequest(url, dynamic_cast<CBSerializable*>(&conditions), responder, true);
 }
+void CBHelper::searchDocumentAggregate(String collectionName, CBHelperDataCommandList commands, CBHelperResponder* responder) {
+	CBHttpConnection* con = this->createConnection("data");
+
+	String url = this->generateURL();
+	url += "/" + this->appCode;
+	url += "/" + collectionName;
+	url += "/aggregate";
+
+	con->sendRequest(url, dynamic_cast<CBSerializable*>(&commands), responder, true);
+}
+
 void CBHelper::downloadFile(String fileId, CBHelperResponder* responder) {
 	CBHttpConnection* con = this->createConnection("data");
 	con->isDownload = true;
@@ -214,6 +225,23 @@ void CBHelper::executeApplet(String appletCode, MAUtil::Map<String, String> para
 	url += appletCode;
 
 	con->sendRequest(url, NULL, responder);
+}
+
+void CBHelper::preparePayPalPurchase(CBPayPalBill purchaseDetails, bool isLiveEnvironment, CBHelperResponder* responder) {
+	CBHttpConnection* con = this->createConnection("paypal");
+
+	String url = this->generateURL();
+	url += "/" + this->appCode;
+	url += "/paypal/prepare";
+
+	CBPayPalPurchase purchase = CBPayPalPurchase(purchaseDetails, isLiveEnvironment, "purchase");
+	con->sendRequest(url, dynamic_cast<CBSerializable*>(&purchase), responder, true);
+}
+
+void CBHelper::completePayPalPurchase(String url, CBHelperResponder* responder) {
+	CBHttpConnection* con = this->createConnection("paypal");
+
+	con->sendRequest(url, NULL, responder, true);
 }
 
 void CBHelper::setPassword(String pwd) {

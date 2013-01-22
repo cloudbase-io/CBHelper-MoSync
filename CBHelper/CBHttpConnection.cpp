@@ -280,6 +280,7 @@ void CBHttpConnection::parseResponseOutput(int statusCode, String function, CBHe
 	resp.function = function;
 	resp.outputString = mBuffer;
 	//printf("buffer size: %i", sizeof(mBuffer));
+	//printf("received response: %s:", mBuffer);
 	YAJLDom::Value* root = YAJLDom::parse(
 	        (const unsigned char*)mBuffer,
 	        sizeof(mBuffer));

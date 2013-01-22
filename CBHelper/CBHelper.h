@@ -23,8 +23,10 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
 
 #include "CBHttpConnection.h"
 #include "Convert.h"
-#include "CBHelperSearchCondition.h"
+#include "DataCommands/CBHelperDataCommandList.h"
+#include "DataCommands/CBHelperSearchCondition.h"
 #include "CBHelperResponder.h"
+#include "CBPayPal.h"
 
 namespace Cloudbase {
 
@@ -136,6 +138,14 @@ public:
 	void searchDocument(String collectionName, CBHelperSearchCondition conditions, CBHelperResponder* responder = NULL);
 	// TODO: Implement the update method. Issue is that at the moment we expect the cb_sarrch_key to specify
 	// the conditions for the update statement - these need to be added to the document after it's been serialized
+
+	/**
+	 * Runs a search over a collection and applies the given list of aggregation commands to the output.
+	 * @param collectionName The name of the collection to run the search over
+	 * @param commands A List of CBDataAggregationCommand objects
+	 * @param responder a block of code to be executed once the request is completed
+	 */
+	void searchDocumentAggregate(String collectionName, CBHelperDataCommandList commands, CBHelperResponder* responder = NULL);
 	/**
 	 * Downloads a file attached to a document in the CloudBase database using the file_id generated once the file is uploaded.
 	 * More information on file attachments is available here http://cloudbase.io/documentation/rest-apis#CloudBase
@@ -199,6 +209,23 @@ public:
 	 * contains the output from the Applet
 	 */
 	void executeApplet(String appletCode, MAUtil::Map<String, String> params, CBHelperResponder* responder = NULL);
+
+	/**
+	 * Initiates a transaction with PayPal by sending the payment details and retrieving a token
+	 * and an express checkout url. The url returned should be then opened in a browser window.
+	 * @param purchaseDetails a populated CBPayPalBill object
+	 * @param isLiveEnvironment whether we are using the production or sandbox paypal environments
+	 * @param responder a responder to handle the returned PayPal token and submission url
+	 */
+	void preparePayPalPurchase(CBPayPalBill purchaseDetails, bool isLiveEnvironment, CBHelperResponder* responder = NULL);
+
+	/**
+	 * Once the PayPal purchase is completed this method updates the record in the cloudbase.io database.
+	 * The responder can then proceed to close the payment window using the output of the call
+	 * @param url The url returned by PayPal once the payment is completed
+	 * @param responder The responder to complete the payment in the application
+	 */
+	void completePayPalPurchase(String url, CBHelperResponder* responder = NULL);
 
 	/**
 	 * If client authentication is enabled in the cloudbase.io settings then this function sets the username
@@ -382,6 +409,41 @@ public:
 private:
 	String sessionId_;
 	String screenName_;
+};
+
+class CBPayPalPurchase : public CBSerializable {
+public:
+	CBPayPalPurchase(CBPayPalBill bill, bool live, String type) :
+		bill_(bill), liveEnv_(live), currency_(bill.currency), type_(type),
+		completedF_(bill.paymentCompletedFunction), cancelledF_(bill.paymentCancelledFunction),
+		completedUrl_(bill.paymentCompletedUrl), cancelledUrl_(bill.paymentCancelledUrl) {};
+
+	String serialize() {
+		String out = "{";
+		out += "\"environment\" : \"";
+		out += (liveEnv_?"live":"sandbox");
+		out += "\", ";
+		out += "\"currency\" : \"" + currency_ + "\", ";
+		out += "\"type\" : \"" + type_ + "\", ";
+		out += "\"completed_cloudfunction\" : \"" + completedF_ + "\", ";
+		out += "\"cancelled_cloudfunction\" : \"" + cancelledF_ + "\", ";
+		out += "\"payment_completed_url\" : \"" + completedUrl_ + "\", ";
+		out += "\"payment_cancelled_url\" : \"" + cancelledUrl_ + "\", ";
+
+		out += "\"purchase_details\" : " + bill_.serialize();
+		out += " } ";
+
+		return out;
+	}
+private:
+	CBPayPalBill bill_;
+	bool liveEnv_;
+	String currency_;
+	String type_;
+	String completedF_;
+	String cancelledF_;
+	String completedUrl_;
+	String cancelledUrl_;
 };
 
 }

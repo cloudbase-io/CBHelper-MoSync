@@ -80,10 +80,10 @@ void CBHelperSearchCondition::addCondition(CBHelperSearchCondition* newCond) {
 }
 
 void CBHelperSearchCondition::baseInit() {
-	//this->conditions_;
 	this->field_ = "";
 	this->value_ = "";
 	this->limit = -1;
+	this->commandType = CBDataAggregationMatch;
 }
 
 void CBHelperSearchCondition::addSortField(String fieldName, CBSortDirection dir) {
@@ -93,33 +93,38 @@ void CBHelperSearchCondition::addSortField(String fieldName, CBSortDirection dir
 	this->sortFields_.add(sortField);
 }
 
-String CBHelperSearchCondition::serialize() {
+String CBHelperSearchCondition::serializeAggregateConditions() {
 	return this->serialize(this, true);
 }
 
-//String CBHelperSearchCondition::serialize(bool isTop) {
-//	return this->serialize(this, isTop);
-//}
+String CBHelperSearchCondition::serialize() {
+	String output = "";
+	if (!this->sortFields_.empty()) {
+		output += "\"cb_sort_key\" : [";
+		for (int i = 0; i < this->sortFields_.size(); i++) {
+			output += this->sortFields_[i];
+			if (i < this->sortFields_.size() - 1)
+				output += ", ";
+		}
+		output += " ], ";
+	}
+
+	if (this->limit > 0) {
+		output += "\"cb_limit\" : " + this->limit;
+		output += ", ";
+	}
+	output += "\"cb_search_key\" : { ";
+
+	output += this->serialize(this, true);
+
+	output += " } ";
+
+	return output;
+}
 
 String CBHelperSearchCondition::serialize(CBHelperSearchCondition* cond, bool isTop) {
 	String output = "{ ";
-	if (isTop) {
-		if (!cond->sortFields_.empty()) {
-			output += "\"cb_sort_key\" : [";
-			for (int i = 0; i < cond->sortFields_.size(); i++) {
-				output += cond->sortFields_[i];
-				if (i < cond->sortFields_.size() - 1)
-					output += ", ";
-			}
-			output += " ], ";
-		}
 
-		if (cond->limit > 0) {
-			output += "\"cb_limit\" : " + cond->limit;
-			output += ", ";
-		}
-		output += "\"cb_search_key\" : { ";
-	}
 
 	if (cond->field_ == "") {
 		if (!cond->conditions_.empty()) {
@@ -177,9 +182,6 @@ String CBHelperSearchCondition::serialize(CBHelperSearchCondition* cond, bool is
 			break;
 		}
 	}
-
-	if (isTop)
-		output += " } ";
 
 	output += " }";
 

@@ -152,6 +152,16 @@ void DataScreen::createUI()
 
 	mSearchButton->addButtonListener(this);
 
+	mSearchAggregateButton = new Button();
+	mSearchAggregateButton->fillSpaceHorizontally();
+	mSearchAggregateButton->wrapContentVertically();
+	mSearchAggregateButton->setTextHorizontalAlignment(MAW_ALIGNMENT_CENTER);
+	mSearchAggregateButton->setTextVerticalAlignment(MAW_ALIGNMENT_CENTER);
+	mSearchAggregateButton->setText("Search Aggregate Objects");
+	mMainLayout->addChild(mSearchAggregateButton);
+
+	mSearchAggregateButton->addButtonListener(this);
+
 	mFileIdBox = new EditBox();
 	mFileIdBox->fillSpaceHorizontally();
 	mFileIdBox->wrapContentVertically();
@@ -186,11 +196,34 @@ void DataScreen::buttonClicked(Widget* button)
 	}
 
 	if (button == mSearchButton) {
-		CBSearchResponder* resp = new CBSearchResponder();
+		resp = new CBSearchResponder();
+
 		CBHelperSearchCondition cond = CBHelperSearchCondition("first_name", "Cloud", CBOperatorEqual);
 		cond.addSortField("first_name", CBSortDescending);
 		cond.limit = 1;
 		this->mScreen->helper->searchDocument("users_data_tab", cond, (CBHelperResponder*)resp);
+
+	}
+
+	if (button == mSearchAggregateButton) {
+		resp = new CBSearchResponder();
+
+		CBHelperDataCommandList commandList;
+		CBDataAggregationCommandProject *project = new CBDataAggregationCommandProject();
+		project->includeFields.add("Symbol");
+		project->includeFields.add("Price");
+		project->includeFields.add("total");
+		commandList.addCommand(project);
+
+		CBHelperSearchCondition *cond = new CBHelperSearchCondition("Symbol", "AAPL", CBOperatorEqual);
+		commandList.addCommand((CBDataAggregationCommand*)cond);
+
+		CBDataAggregationCommandGroup *group = new CBDataAggregationCommandGroup();
+		group->addOutputField("Symbol");
+		group->addGroupFormulaForField("total", CBDataAggregationGroupSum, "Price");
+		commandList.addCommand(group);
+
+		this->mScreen->helper->searchDocumentAggregate("security_master_3", commandList, (CBHelperResponder*)resp);
 	}
 
 	if (button == mDownloadButton) {

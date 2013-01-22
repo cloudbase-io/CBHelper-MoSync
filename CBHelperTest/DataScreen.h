@@ -17,6 +17,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
 
 #include <MAUtil/FileLister.h>
 #include <NativeUI/Widgets.h>
+#include "DataCommands/CBDataAggregationCommandGroup.h"
+#include "DataCommands/CBDataAggregationCommandProject.h"
+#include "DataCommands/CBDataAggregationCommandUnwind.h"
 //#include "MainScreen.h"
 
 //#include "CBHelper/CBHelper.h"
@@ -58,9 +61,12 @@ private:
 		Button* mInsertButton;
 		Button* mInsertFileButton;
 		Button* mSearchButton;
+		Button* mSearchAggregateButton;
 		EditBox* mFileIdBox;
 		Button* mDownloadButton;
 		MainScreen* mScreen;
+
+		CBHelperResponder* resp;
 
 		Image* mImage;
 		MAUtil::String mImagePath;

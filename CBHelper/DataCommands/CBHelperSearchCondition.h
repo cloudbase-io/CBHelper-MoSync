@@ -19,8 +19,9 @@ Software Foundation, 59 Temple Place - Suite 330, Boston, MA
 #include <MAUtil/HashMap.h>
 #include <MAP/LonLat.h>
 #include <conprint.h>
-#include "Convert.h"
-#include "CBSerializable.h"
+#include "../Convert.h"
+#include "../CBSerializable.h"
+#include "CBDataAggregationCommand.h"
 
 //#include "CBHelper.h"
 
@@ -69,7 +70,7 @@ typedef enum CBSortDirection {
  * representation of a WHERE clause in SQL.
  * Each condition can have a number of sub-conditions and each one is linked to the previous using a CBConditionLink
  */
-class CBHelperSearchCondition : public CBSerializable {
+class CBHelperSearchCondition : public CBSerializable, CBDataAggregationCommand {
 public:
 	/// String arrays to convert the condition operator and link from the struct to a String
 	const static String CBConditionOperator_ToString[];
@@ -128,6 +129,7 @@ public:
 	void addSortField(String fieldName, CBSortDirection dir);
 
 	// internal methods used to serialize a CBCondition object and its sub-conditions.
+	String serializeAggregateConditions();
 	String serialize();
 	String serialize(CBHelperSearchCondition* cond, bool isTop = true);
 
