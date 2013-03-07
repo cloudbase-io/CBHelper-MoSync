@@ -157,6 +157,10 @@ String CBHelperSearchCondition::serialize(CBHelperSearchCondition* cond, bool is
 		case CBOperatorAll:
 		case CBOperatorExists:
 		case CBOperatorNe:
+		case CBOperatorBigger:
+		case CBOperatorBiggerOrEqual:
+		case CBOperatorLess:
+		case CBOperatorLessOrEqual:
 		case CBOperatorIn:
 		case CBOperatorNin:
 		case CBOperatorSize:
