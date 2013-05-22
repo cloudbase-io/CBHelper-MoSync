@@ -53,7 +53,7 @@ namespace Cloudbase {
  * The cloudbase.io MoSync helper class compiles to .lib MoSync library. The project
  * needs to be part of your workspace and the CBHelper directory in your path for
  * additional includes.<br/><br/>
- * This full reference is a companion to <a href="/documentation/mosync" target="_blank">
+ * This full reference is a companion to <a href="/documentation/mosync/get-started" target="_blank">
  * the tutorial on the cloudbase.io website<a/>
  */
 
@@ -209,6 +209,15 @@ public:
 	 * contains the output from the Applet
 	 */
 	void executeApplet(String appletCode, MAUtil::Map<String, String> params, CBHelperResponder* responder = NULL);
+	/**
+	 * Executes a cloudbase.io Shared Api
+	 * @param apiCode The unique identified for the Shared Api
+	 * @param password The password for the Shared Api if required
+	 * @param params Additional parameters for the Shared Api
+	 * @param responder The CBHelperResponder object to handle the response from the cloudbase.io servers which
+	 * contains the output from the Shared Api
+	 */
+	void executeSharedApi(String apiCode, String password, MAUtil::Map<String, String> params, CBHelperResponder* responder = NULL);
 
 	/**
 	 * Initiates a transaction with PayPal by sending the payment details and retrieving a token

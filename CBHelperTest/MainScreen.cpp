@@ -149,6 +149,6 @@ MainScreen::~MainScreen()
 void MainScreen::initalizeHelper(MAUtil::String appCode, MAUtil::String appUniq, MAUtil::String pwd) {
 	this->helper = new CBHelper(appCode, appUniq);
 	this->helper->setPassword(pwd);
-	printf("init");
+	printf("init %s, %s", appCode.c_str(), appUniq.c_str());
 }
 

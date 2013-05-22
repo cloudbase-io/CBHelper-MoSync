@@ -190,6 +190,9 @@ void SettingsScreen::loadSettings() {
 void SettingsScreen::saveSettings() {
 	//return;
 	// Construct the filename.
+	this->mScreen->initalizeHelper(mAppCodeBox->getText(), mAppUniqBox->getText(), Cloudbase::MD5(mAppPwdBox->getText()).hexdigest());
+	return;
+
 	MAUtil::String filename = getLocalPath() + SETTINGS_FILE_NAME;
 
 	// Open the file handle.

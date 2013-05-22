@@ -227,6 +227,23 @@ void CBHelper::executeApplet(String appletCode, MAUtil::Map<String, String> para
 	con->sendRequest(url, NULL, responder);
 }
 
+void CBHelper::executeSharedApi(String apiCode, String password, MAUtil::Map<String, String> params, CBHelperResponder* responder) {
+	CBHttpConnection* con = this->createConnection("shared-api");
+
+	if ( password != NULL ) {
+		params.insert("cb_shared_password", password);
+	}
+
+	con->additionalPostParams = params;
+
+	String url = this->generateURL();
+	url += "/" + this->appCode;
+	url += "/shared/";
+	url += apiCode;
+
+	con->sendRequest(url, NULL, responder);
+}
+
 void CBHelper::preparePayPalPurchase(CBPayPalBill purchaseDetails, bool isLiveEnvironment, CBHelperResponder* responder) {
 	CBHttpConnection* con = this->createConnection("paypal");
 

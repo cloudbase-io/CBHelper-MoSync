@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project version="1.5">
+<project version="1.6">
 <active.build.cfg active="Debug"/>
-<target-profile device="Android" vendor="Android"/>
+<target-profile device="iPhone" vendor="iOS"/>
 <properties/>
 </project>
