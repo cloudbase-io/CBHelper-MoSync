@@ -62,6 +62,11 @@ public:
 	bool isHttps;
 	MAP::LonLat currentLocation;
 	String sessionId;
+	/**
+	 * The domain for the api web server. By default this points to api.cloudbase.io - it should be changed if
+	 * running on a private cloud instance
+	 */
+	String domain;
 
 	/**
 	* Initializes the new cloudbase.io CBHelper object for the given application
@@ -251,7 +256,6 @@ protected:
 	String appUniq;
 	String password;
 
-	String domain;
 	String defaultLogCategory;
 
 	String country;
